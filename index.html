@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>creating particles</title>
+  
+  </head>
+
+  <body>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      button {
+        float: right;
+        background-color: rgba(255, 0, 255, 0.4);
+      }
+    </style>
+
+    <canvas id="myCanvas" width="900" height="800"></canvas>
+    <script type="text/javascript">
+      window.onload = function() {
+  var canv = document.getElementById("myCanvas"),
+    c = canv.getContext("2d");
+
+  (gravity = 0.01),
+    (dampening = 0.99),
+    (pullStrength = 0.02),
+    (circles = []),
+    (numCircles = 50);
+
+  //var circle is an object with object literals, but now we need bunches of circles, hence we make circle Array.
+  //var circles = [];
+
+  //var x = {foo:"bar"};Object notation where x.foo = "bar";
+  for (var i = 0; i < numCircles; i++) {
+    circles.push({
+      x: Math.random() * canv.width, //50,
+      y: Math.random() * canv.height, //50,
+      //(vx, vy = Velocity vector)
+      vx: 0,
+      vy: 0,
+      radius: 20
+    });
+  }
+
+  /*var circle = {//Object literals.
+        x: 50,
+        y: 50,
+        //(vx, vy = Velocity vector)
+        vx: 0,
+        vy: 0,
+        radius: 20
+    };*/
+  /*var x = 50,
+        y = 50,
+        radius = 20;*/
+  function randomColor(color) {
+    var color = ["red", "pink", "indigo", "blue", "brown", "yellow", "green"];
+    return color[Math.floor(Math.random() * color.length)];
+  }
+
+  function executeFrame() {
+    var i, circle;
+    for (i = 0; i < numCircles; i++) {
+      circle = circles[i];
+      //Increment location by velocity.
+      circle.x += circle.vx;
+      circle.y += circle.vy;
+      // Increment Gravity
+      circle.vy += gravity;
+      circle.vy *= dampening;
+      circle.vx *= dampening;
+
+      //Bouncing bottom
+
+      if (circle.y + circle.radius > canv.height) {
+        circle.vy = -Math.abs(circle.vy);
+        circle.y = canv.height - circle.radius;
+      }
+
+      //Bouncing right
+
+      if (circle.x + circle.radius > canv.width) {
+        circle.x = canv.width - circle.radius;
+        circle.vx = -Math.abs(circle.vx);
+      }
+      //instead of clearing the rectangle every 30 milliseconds, lets fill the rect with cool looking transparant background color.
+
+      //c.fillStyle = 'rgba(255, 255, 255, 0.5)';
+      //c.fillRect(0, 0, canv.width, canv.height);
+      //c.clearRect(0, 0, canv.width, canv.height);
+
+      c.beginPath();
+      c.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
+      c.closePath();
+      c.fillStyle = randomColor();
+      c.fill();
+    } //for loop ends here.
+    c.fillStyle = "rgba(255, 255, 255, 0.1)";
+    c.fillRect(0, 0, canv.width, canv.height);
+    //if(circle.y < canv.height -circle.radius)//execute frame only until y < canvas.height-radius.then stop.
+    window.requestAnimationFrame(executeFrame);
+  }
+
+  //add buttons..
+
+  var button = document.createElement("button");
+  button.innerHTML = "Reset";
+  document.body.appendChild(button);
+  var restart = document.createElement("button");
+  restart.innerHTML = "Restart";
+  document.body.appendChild(restart);
+
+  //Clear entire operation,
+  button.addEventListener("click", clean);
+  function clean() {
+    c.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    window.requestAnimationFrame(clean);
+  }
+
+  //Restart the animation
+  restart.addEventListener("click", startAgain);
+  function startAgain() {
+    window.requestAnimationFrame(executeFrame);
+    c.fillRect(0, 0, canv.width, canv.height);
+  }
+
+  // before calling the executeFrame, lets add an eventListener.
+  canv.addEventListener("mousedown", function(e) {
+    //console.log(e.pageX, e.pageY);
+    //lets set the position of pageX and pageY = circle x position and circle y posttion.
+    var i, circle, distanceX, distanceY;
+    for (i = 0; i < numCircles; i++) {
+      circle = circles[i];
+      distanceX = e.pageX - circle.x;
+      distanceY = e.pageY - circle.y;
+
+      circle.vx += distanceX * pullStrength;
+      circle.vy += distanceY * pullStrength;
+      //circle.x = e.pageX;
+      //circle.y = e.pageY;
+    }
+  });
+  executeFrame();
+};
+
+      </script>
+  </body>
+</html>
